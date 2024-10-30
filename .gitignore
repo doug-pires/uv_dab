@@ -1,0 +1,11 @@
+.databricks/
+build/
+dist/
+__pycache__/
+*.egg-info
+.venv/
+scratch/**
+!scratch/README.md
+.env
+.vscode/
+.pytest_cache/

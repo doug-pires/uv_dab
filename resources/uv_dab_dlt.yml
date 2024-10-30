@@ -1,0 +1,24 @@
+resources:
+  pipelines:
+    facts_pipeline:
+      name: facts_pipeline_${bundle.target}
+      catalog: uv_dab
+      target: schema_uv_dab
+      edition: core
+      # edition: pro
+      # edition: advanced
+      libraries:
+        - notebook:
+            path: ../src/uv_dab/dlt.ipynb
+
+      configuration:
+        bundle.sourcePath: ${workspace.file_path}/src
+        bundle_root: ${workspace.file_path}
+
+      clusters:
+        - num_workers: 1
+          custom_tags:
+            project: "quotes"
+            owner: "Douglas Pires"
+          spark_env_vars:
+            MY_VAR: "Hello from Enviroment Variable"

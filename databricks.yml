@@ -1,0 +1,48 @@
+# This is a Databricks asset bundle definition for uv_dab_langchain.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: uv_dab
+
+artifacts:
+  default:
+    type: whl
+    build: uv build --wheel
+    # build: poetry build --format wheel
+    path: .
+
+variables:
+  databricks_runtime_version:
+    description: Databricks Runtime version
+    default: 15.3.x-scala2.12
+  cluster_node_type:
+    description: "The node type for the cluster"
+    default: Standard_D3_v2
+
+include:
+  - ./resources/*.yml
+
+sync:
+  exclude:
+    - "__pycache__"
+    - ".pytest_cache"
+    - ".venv/*"
+  # include:
+  #   - "<some-file-or-path-glob-to-include>"
+  #   - "<another-file-or-path-glob-to-include>"
+  # paths:
+  #   - "<some-file-or-path-to-synchronize>"
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-99999999999.6.azuredatabricks.net
+
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-100000000000.6.azuredatabricks.net
+      root_path: /Shared/.bundle/${bundle.name}/${bundle.target}
+    run_as:
+      user_name: doug-pires@gmail.com

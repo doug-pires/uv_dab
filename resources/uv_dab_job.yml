@@ -1,0 +1,40 @@
+resources:
+  jobs:
+    uv_dab_job:
+      name: uv_dab_job_${bundle.target}
+
+      schedule:
+        # Run every day at 8:37 AM
+        quartz_cron_expression: "44 37 8 * * ?"
+        timezone_id: Europe/Amsterdam
+
+      email_notifications:
+        on_failure:
+          - d.martins@kigroup.de
+
+      job_clusters:
+        - job_cluster_key: &alias job_cluster
+          new_cluster:
+            spark_version: ${var.databricks_runtime_version}
+            node_type_id: Standard_D3_v2
+            num_workers: 1
+            # autoscale:
+            #   min_workers: 1
+            #   max_workers: 4
+      tasks:
+        - task_key: ingestion_json
+          job_cluster_key: *alias
+          python_wheel_task:
+            package_name: uv_dab
+            entry_point: ingestion
+          libraries:
+            # By default we just include the .whl file generated for the uv_dab_langchain package.
+            # See https://docs.databricks.com/dev-tools/bundles/library-dependencies.html
+            # for more information on how to add other libraries.
+            - whl: ../dist/*.whl
+
+        - task_key: facts_dlt
+          depends_on:
+            - task_key: ingestion_json
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.facts_pipeline.id}
